@@ -72,7 +72,7 @@ def main(argv=None):
         pretrained_model_path = pretrain(
             n_epochs=FLAGS.pretrain_epochs
         )
-        output_dir_1 = os.path.join("/content/drive/MyDrive/output", f"fold{FLAGS.fold_idx}")
+        output_dir_1 = os.path.join("/content/drive/MyDrive/output_1", f"fold{FLAGS.fold_idx}")
         shutil.copytree(output_dir, output_dir_1)
 
 if __name__ == "__main__":
