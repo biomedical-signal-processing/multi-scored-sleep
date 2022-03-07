@@ -12,7 +12,7 @@ from deepsleepLite.sleep_stages import (NUM_CLASSES,
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('data_dir', '/content/drive/MyDrive/DOD-H_V2',
+tf.app.flags.DEFINE_string('data_dir', '/content/drive/MyDrive/DOD-O_V2',
                            """Directory where to load training data.""")
 tf.app.flags.DEFINE_string('output_dir', '/content/output',
                            """Directory where to save trained models """
