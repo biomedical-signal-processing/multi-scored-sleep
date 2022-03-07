@@ -5,7 +5,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from tensorflow.compat.v1 import ConfigProto
 
 from sklearn.metrics import confusion_matrix, f1_score
