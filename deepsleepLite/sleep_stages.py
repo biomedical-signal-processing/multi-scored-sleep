@@ -3,7 +3,7 @@
 NUM_CLASSES = 5
 EPOCH_SEC_LEN = 30  # seconds
 SEQ_OF_EPOCHS = 3  # number of epochs in a sequence / length L
-SAMPLING_RATE = 128.0 # fs del dataset IS-RC
+SAMPLING_RATE = 100.0 # fs del dataset IS-RC
 
 class_dict = {
     0: "W",
