@@ -127,7 +127,7 @@ class SleepNetLiteTrainer(Trainer):
 
             # Balance sleep stages classes
             if balance_classes == 'oversampling':
-                data, targets, targets_smoothed = get_balance_class_sequences_oversample_V2(x=data, y=targets, y_smoothed=targets_smoothed, seq_length=self.seq_length,
+                data, targets, targets_smoothed = get_balance_class_sequences_oversample(x=data, y=targets, y_smoothed=targets_smoothed, seq_length=self.seq_length,
                                                                        flipping=True, cond_prob=True) # dovrebbe essere True
 
             for x_batch, y_batch, y_batch_seq, y_batch_conditioned in iterate_minibatches_train( #seleziona le mini_batch dall'epoca correnete
