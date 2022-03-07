@@ -1,6 +1,7 @@
 #! /usr/bin/python
 # -*- coding: utf8 -*-
 
+import shutil 
 import os
 import tensorflow.compat.v1 as tf
 from deepsleepLite.trainer import SleepNetLiteTrainer
@@ -11,12 +12,12 @@ from deepsleepLite.sleep_stages import (NUM_CLASSES,
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('data_dir', 'C:/Users/pedro/OneDrive - Politecnico di Torino/Desktop/DSN-L/pre_processing/DOD-O/',
+tf.app.flags.DEFINE_string('data_dir', '/content/drive/MyDrive/DOD-H_V2',
                            """Directory where to load training data.""")
-tf.app.flags.DEFINE_string('output_dir', '/output',
+tf.app.flags.DEFINE_string('output_dir', '/content/output',
                            """Directory where to save trained models """
                            """and outputs.""")
-tf.app.flags.DEFINE_integer('n_folds', 10,
+tf.app.flags.DEFINE_integer('n_folds', 25,
                             """Number of cross-validation folds.""")
 tf.app.flags.DEFINE_integer('fold_idx', 0,
                             """Index of cross-validation fold to train.""")
@@ -53,10 +54,10 @@ def pretrain(n_epochs):
 
 
 def main(argv=None):
-    l = [0,1,2,3,4,5,6,7,8,9]
+    #l = [0,1,2,3,4,5,6,7,8,9]
     #FLAGS.n_folds=len(l)
     #l = [0, 1, 2, 3, 4,]
-    #l = list(range(0, 25))
+    l = list(range(0, 25))
      #l = [9]
     for fold_idx in l:
         FLAGS.fold_idx = fold_idx
@@ -71,7 +72,8 @@ def main(argv=None):
         pretrained_model_path = pretrain(
             n_epochs=FLAGS.pretrain_epochs
         )
-
+        output_dir_1 = os.path.join("/content/drive/MyDrive/output", f"fold{FLAGS.fold_idx}")
+        shutil.copytree(output_dir, output_dir_1)
 
 if __name__ == "__main__":
     # Run Network
