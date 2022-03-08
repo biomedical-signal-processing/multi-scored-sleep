@@ -84,7 +84,7 @@ if __name__ == "__main__":
       f = open(f"/content/drive/MyDrive/output/fold{i}/sleepnetlite/checkpoint/checkpoint", "r+")
 
       lines = f.readlines()
-      a = f"{lines[0][:25]}content/drive/MyDrive{lines[0][31:-1]}"
+      a = f"{lines[0][:25]}content/drive/MyDrive{lines[0][32:-1]}"
       b = f"{lines[1][:30]}content/drive/MyDrive{lines[1][37:-1]}"
       c = f"{a}\n{b}"
       f.truncate(0)
