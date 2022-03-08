@@ -4,7 +4,7 @@ import os
 import time
 
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from tensorflow.compat.v1 import ConfigProto
 
 from datetime import datetime
@@ -328,7 +328,7 @@ def main(argv=None):
     if not os.path.exists(FLAGS.output_dir):
         os.makedirs(FLAGS.output_dir)
 
-    n_folds = 25
+    n_folds = 10
 
     predict_on_feature_net(
         data_dir=FLAGS.data_dir,
