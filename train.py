@@ -1,6 +1,5 @@
 #! /usr/bin/python
 # -*- coding: utf8 -*-
-
 import shutil 
 import os
 import tensorflow.compat.v1 as tf
@@ -21,7 +20,7 @@ tf.app.flags.DEFINE_integer('n_folds', 10,
                             """Number of cross-validation folds.""")
 tf.app.flags.DEFINE_integer('fold_idx', 0,
                             """Index of cross-validation fold to train.""")
-tf.app.flags.DEFINE_integer('pretrain_epochs', 150,
+tf.app.flags.DEFINE_integer('pretrain_epochs', 100,
                             """Number of epochs for pretraining DeepFeatureNet.""")
 tf.app.flags.DEFINE_boolean('resume', False,
                             """Whether to resume the training process.""")
@@ -72,7 +71,7 @@ def main(argv=None):
         pretrained_model_path = pretrain(
             n_epochs=FLAGS.pretrain_epochs
         )
-        output_dir_1 = os.path.join("/content/drive/MyDrive/output_1", f"fold{FLAGS.fold_idx}")
+        output_dir_1 = os.path.join("/content/drive/MyDrive/Experiment _Paper/DSNL/DODO/training/LSE/0.5", f"fold{FLAGS.fold_idx}")
         shutil.copytree(output_dir, output_dir_1)
 
 if __name__ == "__main__":
