@@ -12,7 +12,7 @@ from deepsleepLite.sleep_stages import (NUM_CLASSES,
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('data_dir', '/content/drive/MyDrive/DOD-O_V2',
+tf.app.flags.DEFINE_string('data_dir', '/content/drive/MyDrive/Experiment _Paper/DOD-O_V2',
                            """Directory where to load training data.""")
 tf.app.flags.DEFINE_string('output_dir', '/content/output',
                            """Directory where to save trained models """
@@ -78,19 +78,3 @@ def main(argv=None):
 if __name__ == "__main__":
     # Run Network
     tf.compat.v1.app.run()
-    
-    # update checkpoint paths
-    for i in range(0,10):
-      f = open(f"/content/drive/MyDrive/output/fold{i}/sleepnetlite/checkpoint/checkpoint", "r+")
-
-      lines = f.readlines()
-      a = f"{lines[0][:25]}content/drive/MyDrive{lines[0][32:-1]}"
-      b = f"{lines[1][:30]}content/drive/MyDrive{lines[1][37:-1]}"
-      c = f"{a}\n{b}"
-      f.truncate(0)
-      f.write(c)
-      f.close()
-
-      f = open(f"/content/drive/MyDrive/output/fold{i}/sleepnetlite/checkpoint/checkpoint", "w")
-      f.write(c)
-      f.close()
