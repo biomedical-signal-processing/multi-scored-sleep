@@ -21,11 +21,11 @@ from deepsleepLite.sleep_stages import (NUM_CLASSES,
 ALPHA = 0
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('data_dir', '/data',
+tf.app.flags.DEFINE_string('data_dir', '/content/drive/MyDrive/DOD-O_V2',
                            """Directory where to load testing data.""")
-tf.app.flags.DEFINE_string('model_dir', '/output',
+tf.app.flags.DEFINE_string('model_dir', '/content/output',
                            """Directory where to load trained models.""")
-tf.app.flags.DEFINE_string('output_dir', f'/pred',
+tf.app.flags.DEFINE_string('output_dir', f'/content/prediction',
                            """Directory where to save outputs.""")
 
 coding2stages = {
