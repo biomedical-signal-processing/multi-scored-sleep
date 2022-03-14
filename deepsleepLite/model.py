@@ -232,12 +232,12 @@ class SleepNetLite(object):
             self.logits = network
 
             # Uniform Label smoothing
-            name = "l{}_label_smoothing".format(self.layer_idx)
-            self.target_var_smoothed = label_smoothing_uniform(name=name, target_var=self.target_var, alfa=self.alfa, K=self.n_classes)
+            #name = "l{}_label_smoothing".format(self.layer_idx)
+            #self.target_var_smoothed = label_smoothing_uniform(name=name, target_var=self.target_var, alfa=self.alfa, K=self.n_classes)
 
             # Empirical Label smoothing
-            # name = "l{}_label_smoothing_conditioned".format(self.layer_idx)
-            # self.target_var_smoothed = label_smoothing_empirical(name=name, target_var=self.target_var, target_var_conditioned=self.target_var_conditioned, alfa=self.alfa)
+            name = "l{}_label_smoothing_conditioned".format(self.layer_idx)
+            self.target_var_smoothed = label_smoothing_empirical(name=name, target_var=self.target_var, target_var_conditioned=self.target_var_conditioned, alfa=self.alfa)
 
 
 
