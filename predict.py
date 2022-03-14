@@ -25,7 +25,7 @@ tf.app.flags.DEFINE_string('data_dir', '/content/drive/MyDrive/Experiment _Paper
                            """Directory where to load testing data.""")
 tf.app.flags.DEFINE_string('model_dir', '/content/output',
                            """Directory where to load trained models.""")
-tf.app.flags.DEFINE_string('output_dir', f'/content/prediction',
+tf.app.flags.DEFINE_string('output_dir', f'/content/drive/MyDrive/Experiment _Paper/DSNL/DODO/prediction/LSU/0.2',
                            """Directory where to save outputs.""")
 
 coding2stages = {
@@ -283,13 +283,13 @@ def predict_on_feature_net(
 
 
     print((
-        "n={}, acc={:.3f}, mf1={:.3f} wf1={:.3f} k={:.3f}".format(
-            n_examples, acc, mf1, wf1, k
+        "n={}, acc={:.1f}, mf1={:.1f} wf1={:.1f} k={:.1f}".format(
+            n_examples, acc*100, mf1*100, wf1*100, k*100
         )
     ))
     print((
-        "Per-class-f1: w={:.3f}, n1={:.3f}, n2={:.3f}, n3={:.3f} , rem={:.3f}").format(
-        per_class_f1[0], per_class_f1[1], per_class_f1[2], per_class_f1[3], per_class_f1[4]
+        "Per-class-f1: w={:.1f}, n1={:.1f}, n2={:.1f}, n3={:.1f} , rem={:.1f}").format(
+        per_class_f1[0]*100, per_class_f1[1]*100, per_class_f1[2]*100, per_class_f1[3]*100, per_class_f1[4]*100
     ))
     print(cm)
     save_dict = {
@@ -306,8 +306,8 @@ def predict_on_feature_net(
     print(f"alfa = {ALPHA}")
     np.savez(f"{output_dir}/performance_overall.npz", **save_dict)
 
-    print(f" n={n_examples}, acc={round(np.mean(Acc),3)} ± {round(np.std(Acc),3)}, mf1={round(np.mean(MF1),3)} ± {round(np.std(MF1),3)}, wf1={round(np.mean(WF1),3)} ± {round(np.std(WF1),3)}, k={round(np.mean(K),3)} ± {round(np.std(K),3)}")
-    print(f"Per-class-f1: w={round(np.mean(F1_w),3)} ± {round(np.std(F1_w),3)}, n1={round(np.mean(F1_n1),3)} ± {round(np.std(F1_n1),3)}, n2={round(np.mean(F1_n2),3)} ± {round(np.std(F1_n2),3)}, n3={round(np.mean(F1_n3),3)} ± {round(np.std(F1_n3),3)}, rem={round(np.mean(F1_r),3)} ± {round(np.std(F1_r),3)}")
+    print(f" n={n_examples}, acc={round(np.mean(Acc)*100,1)} ± {round(np.std(Acc)*100,1)}, mf1={round(np.mean(MF1)*100,1)} ± {round(np.std(MF1)*100,1)}, wf1={round(np.mean(WF1)*100,1)} ± {round(np.std(WF1)*100,1)}, k={round(np.mean(K)*100,1)} ± {round(np.std(K)*100,1)}")
+    print(f"Per-class-f1: w={round(np.mean(F1_w)*100,1)} ± {round(np.std(F1_w)*100,1)}, n1={round(np.mean(F1_n1)*100,1)} ± {round(np.std(F1_n1)*100,1)}, n2={round(np.mean(F1_n2)*100,1)} ± {round(np.std(F1_n2)*100,1)}, n3={round(np.mean(F1_n3)*100,1)} ± {round(np.std(F1_n3)*100,1)}, rem={round(np.mean(F1_r)*100,1)} ± {round(np.std(F1_r)*100,1)}")
 
     save_dict = {
         "y_true": y_true,
