@@ -79,6 +79,9 @@ class DataLoader(object):
                 test_files = list(set(test_files) - set([test[self.fold_idx]]))
             if dodo and self.fold_idx == 9:
                 test_files.extend(test)
+                train_files = list(set(allfiles) - set(test_files))
+                valid_files = random.sample(train_files, n_valid)  # 20% del train è scelto come valid
+                train_files = list(set(train_files) - set(valid_files))
 
             # Sorting:
             test_files.sort(key=lambda x: int(x.split("_")[1]))
