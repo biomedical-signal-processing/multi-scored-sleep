@@ -333,7 +333,7 @@ def main(argv=None):
     if not os.path.exists(FLAGS.output_dir):
         os.makedirs(FLAGS.output_dir)
 
-    n_folds = 10
+    n_folds = 25
 
     predict_on_feature_net(
         data_dir=FLAGS.data_dir,
