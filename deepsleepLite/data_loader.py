@@ -219,6 +219,10 @@ class DataLoader(object):
           labels_smoothed.append(y_smoothed)
       if db == "dodh_o":
             consensus = np.load("/content/drive/MyDrive/Experiment _Paper/TL/consensus_DODO.npz", allow_pickle=True)["w_consensus"]
+      elif db == "dodo_h":
+            consensus = np.load("/content/drive/MyDrive/Experiment _Paper/TL/consensus_DODH.npz", allow_pickle=True)["w_consensus"]
+
+
 
 
       return data, labels, labels_smoothed, test_files, consensus
