@@ -196,5 +196,30 @@ class DataLoader(object):
             labels.append(y)
             labels_smoothed.append(y_smoothed)
 
-        return data, labels, labels_smoothed, test_files
+        return data, labels, labels_smoothed, 
+        
+    def load_TL(self, data_dir, db="dodh_o"):
+      """Load test data and labels in prediction.py from test list."""
+
+      test_files = os.listdir(data_dir)
+      data = []
+      labels = []
+      labels_smoothed = []
+      for file in test_files:
+          x, y, y_smoothed, sampling_rate = self._load_npz_file_ISRC(file,cond_prob=True)
+
+          # Reshape the data to match the input of the model - conv2d
+          x = np.squeeze(x)
+          x = x[:, :, np.newaxis, np.newaxis]
+
+          # Casting
+          x = x.astype(np.float32)
+          data.append(x)
+          labels.append(y)
+          labels_smoothed.append(y_smoothed)
+      if db == "dodh_o":
+            consensus = np.load("/content/drive/MyDrive/Experiment _Paper/TL/consensus_DODO.npz", allow_pickle=True)["w_consensus"]
+
+
+      return data, labels, labels_smoothed, test_files, consensus
 
