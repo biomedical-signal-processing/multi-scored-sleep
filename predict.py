@@ -29,7 +29,6 @@ dataset = sys.argv[1]
 model = sys.argv[2]
 base_path = "/content/drive/MyDrive/Experiments/DSNL"
 model_dir = f"{base_path}/{dataset}/{model}"
-output_dir = "/content/pred"
 n_folds = 1
 alpha = 0
 
@@ -77,7 +76,6 @@ def run_epoch(
         seq_length,
         smoothing,
         train_op,
-        output_dir,
         fold_idx
 
 ):
@@ -183,7 +181,6 @@ def run_epoch(
     total_loss /= n_batches
     total_y_pred = np.hstack(y)
     total_y_true = np.hstack(y_true)
-    print(acc)
 
     return duration, acc, mf1, k, wf1, f1_w, f1_n1, f1_n2, f1_n3, f1_r, ece, acs
 
@@ -191,7 +188,6 @@ def run_epoch(
 def predict_on_feature_net(
         data_dir,
         model_dir,
-        output_dir,
         n_folds,
         smoothing
 ):
@@ -269,7 +265,6 @@ def predict_on_feature_net(
                 seq_length=3,
                 smoothing=smoothing,
                 train_op=tf.no_op(),
-                output_dir=output_dir,
                 fold_idx=fold_idx
             )
         print(f"Done! [Time elapsed: {duration} s]")
@@ -286,30 +281,24 @@ def predict_on_feature_net(
     F1_n3 = np.round(np.nanmean(f1_n3)*100,1)
     F1_r = np.round(np.nanmean(f1_r)*100,1)
     
-    acc__ = np.round(np.mean(acc),3)
-    conf__ = []
+    acc_ = np.round(np.mean(acc),3)
+    conf = []
     for k in ece:
-      conf__.append(k['avg_confidence'])
-    conf__ = np.round(np.mean(conf__),3)
-    ece__ = abs(acc__/100 - conf__)
+      conf.append(k['avg_confidence'])
+    conf = np.round(np.mean(conf),3)
+    ece_ = round(abs(acc_ - conf),3)
     acs = f"{np.round(np.mean(acs),3)} ± {np.round(np.std(acs),3)}"
 
     print("\nOverall Performance Tables: \n")
     print(tabulate([[dataset, f"DSNL {model}", Acc, MF1, WF1, K, F1_w, F1_n1, F1_n2, F1_n3, F1_r]], headers=['Dataset','Model','Accuracy %', 'MF1 %', 'WF1 %','Cohen-k %', 'W %', 'N1 %', 'N2 %','N3 %','REM %'], tablefmt="pretty"))
-    print(tabulate([[dataset, f"DSNL {model}", ece__, acc__, conf__, acs]], headers=['Dataset','Model','ECE', 'Accuracy', 'Confidence','ACS'],tablefmt="pretty"))
+    print(tabulate([[dataset, f"DSNL {model}", ece_, acc_, conf, acs]], headers=['Dataset','Model','ECE', 'Accuracy', 'Confidence','ACS'],tablefmt="pretty"))
 
 
 def main(argv=None):
-    # Output dir
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    
 
     predict_on_feature_net(
         data_dir=data_dir,
         model_dir=model_dir,
-        output_dir=output_dir,
         n_folds=n_folds,
         smoothing=alpha
     )
