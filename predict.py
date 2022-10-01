@@ -224,7 +224,7 @@ def predict_on_feature_net(
         print("Model restored from: {}\n".format(tf.train.latest_checkpoint(checkpoint_path)))
 
         # Load testing data -
-        x, y, y_smoothed, test_files = data_loader.load_ISRC_testdata_cv(test_path)
+        x, y, y_smoothed, test_files = data_loader.load_testdata_cv(test_path)
 
         print(f"Patient predicted: {test_files} \n")
 
