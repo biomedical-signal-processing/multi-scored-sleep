@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 import os
 import time
-
+import sys
 import numpy as np
 import tensorflow.compat.v1 as tf
 from tensorflow.compat.v1 import ConfigProto
@@ -17,16 +17,29 @@ from deepsleepLite.utils import *
 from deepsleepLite.sleep_stages import (NUM_CLASSES,
                                         EPOCH_SEC_LEN,
                                         SAMPLING_RATE)
+from Calibration_ACS import*
 
-ALPHA = 0
-FLAGS = tf.app.flags.FLAGS
+# Ignore os, tf depecration errors
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
-tf.app.flags.DEFINE_string('data_dir', '/content/drive/MyDrive/Experiment _Paper/DOD-O_V2',
-                           """Directory where to load testing data.""")
-tf.app.flags.DEFINE_string('model_dir', '/content/output',
-                           """Directory where to load trained models.""")
-tf.app.flags.DEFINE_string('output_dir', f'/content/drive/MyDrive/Experiment _Paper/DSNL/DODO/prediction/LSU/0.2',
-                           """Directory where to save outputs.""")
+dataset = sys.argv[1]
+model = sys.argv[2]
+base_path = "/content/drive/MyDrive/Experiments/DSNL"
+model_dir = f"{base_path}/{dataset}/{model}"
+output_dir = "/content/pred"
+n_folds = 1
+alpha = 0
+
+if dataset == "DODO":
+  data_dir = "/content/drive/MyDrive/Experiment _Paper/DOD-O_V2"
+  fold_idx = 1
+elif dataset == "DODH":
+  data_dir = "/content/drive/MyDrive/Experiment _Paper/DOD-H_V2"
+  fold_idx = 24
+elif dataset == "ISRC":
+  data_dir = "/content/drive/MyDrive/Experiment _Paper/IS-RC_filtered_one+smooth_correct"
+  fold_idx = 4
 
 coding2stages = {
     0: "W",
@@ -70,6 +83,9 @@ def run_epoch(
     y = []
     y_true = []
     prob_pred = []
+    ece = []
+    acs = []
+    
 
     total_loss, n_batches = 0.0, 0
 
@@ -79,6 +95,9 @@ def run_epoch(
 
         each_y_true = []
         each_y_pred = []
+        each_hypno_sc = []
+        
+       
 
         each_prob_pred = []
         # y_batch_seq, batch_len, epochs_shifts
@@ -105,6 +124,7 @@ def run_epoch(
 
             each_y_true.extend(y_batch)
             each_y_pred.extend(y_pred)
+            each_hypno_sc.extend(y_batch_cond)
             each_prob_pred.append(prob_tmp)
 
             total_loss += loss_value
@@ -118,26 +138,19 @@ def run_epoch(
         y_true.append(each_y_true)
         prob_pred.append(each_prob_pred)
 
-    # # Save prediction
-    save_dict = {
-        "y_true": y_true,
-        "y_pred": y,
-        "prob_pred": prob_pred
-    }
-    save_path = os.path.join(
-        output_dir,
-        "output_fold{}.npz".format(fold_idx)
-    )
+        # Compute ECE
+        ece.append(compute_calibration(each_y_true, each_y_pred, each_prob_pred, num_bins=20))
 
-    np.savez(save_path, **save_dict)
-    print("Saved outputs to {}".format(save_path))
+        # Compute ACS
+        acs.append(compute_similarity(each_prob_pred, each_hypno_sc))
+
 
     duration = time.time() - start_time
     total_loss /= n_batches
     total_y_pred = np.hstack(y)
     total_y_true = np.hstack(y_true)
 
-    return total_y_true, total_y_pred, total_loss, duration
+    return total_y_true, total_y_pred, total_loss, duration, ece, acs
 
 
 def predict_on_feature_net(
@@ -183,89 +196,89 @@ def predict_on_feature_net(
         # Initialize parameters
         test_net.init_ops()
 
-        for fold_idx in range(n_folds):
+    
+        data_loader = DataLoader(
+            data_dir=data_dir,
+            n_folds=n_folds,
+            fold_idx=fold_idx
+        )
 
-            data_loader = DataLoader(
-                data_dir=data_dir,
-                n_folds=n_folds,
+        checkpoint_path = f"{model_dir}/fold{fold_idx}/sleepnetlite/checkpoint/"
+        test_path = f"{model_dir}/fold{fold_idx}/sleepnetlite/data_file{fold_idx}.npz"
+
+        print(f"checkpoint_path: {checkpoint_path} \n")  
+                  
+        print(f"test_path: {test_path} \n")
+
+        if not os.path.exists(checkpoint_path):
+            Acc.append('NaN')
+            
+        # Restore the trained model
+        saver = tf.train.Saver()
+        saver.restore(sess, tf.train.latest_checkpoint(checkpoint_path))
+        print("Model restored from: {}\n".format(tf.train.latest_checkpoint(checkpoint_path)))
+
+        # Load testing data -
+        x, y, y_smoothed, test_files = data_loader.load_ISRC_testdata_cv(test_path)
+
+        print(f"Patient predicted: {test_files} \n")
+
+        # Loop each epoch
+        print("[{}] Predicting ...\n".format(datetime.now()))
+
+        # # Evaluate the model on the subject data
+        y_true_, y_pred_, loss, duration, ece, = \
+            run_epoch(
+                sess=sess, network=test_net,
+                inputs=x, targets=y, targets_smoothed=y_smoothed,
+                seq_length=3,
+                smoothing=smoothing,
+                train_op=tf.no_op(),
+                output_dir=output_dir,
                 fold_idx=fold_idx
             )
 
-            checkpoint_path = f"{model_dir}/fold{fold_idx}/sleepnetlite/checkpoint/"
-            print(f"{checkpoint_path}")
-            test_path = f"{model_dir}/fold{fold_idx}/sleepnetlite/data_file{fold_idx}.npz"
-            # print(f"{test_path}")
-            print({checkpoint_path})
-            # print({test_path})
+        n_examples = len(y_true)
 
-            if not os.path.exists(checkpoint_path):
-                Acc.append('NaN')
-                continue
+        cm_ = confusion_matrix(y_true_, y_pred_)
+        acc_ = np.mean(y_true_ == y_pred_)
+        mf1_ = f1_score(y_true_, y_pred_, average="macro")
+        k_ = cohen_kappa_score(y_true_, y_pred_)
+        wf1_ = f1_score(y_true_, y_pred_, average="weighted")
+        f1_ = f1_score(y_true_, y_pred_, average=None)
+        # pre_ = precision_score(y_true_, y_pred_)
+        # rec_ = recall_score(y_true_, y_pred_)
 
-            # Restore the trained model
-            saver = tf.train.Saver()
-            saver.restore(sess, tf.train.latest_checkpoint(checkpoint_path))
-            print("Model restored from: {}\n".format(tf.train.latest_checkpoint(checkpoint_path)))
+        save_dict = {
+            "test_files": test_files,
+            "cm": cm_,
+            "acc": acc_,
+            "mf1": mf1_
+        }
+        np.savez(f"{output_dir}/performance_fold{fold_idx}.npz", **save_dict)
 
-            # Load testing data -
-            x, y, y_smoothed, test_files = data_loader.load_ISRC_testdata_cv(test_path)
+        # Report performance
+        print_performance(
+            sess, test_net.name,
+            n_examples, duration, loss,
+            cm_, acc_, mf1_
+        )
 
-            # Loop each epoch
-            print("[{}] Predicting ...\n".format(datetime.now()))
+        # All folds
+        Acc.append(acc_)
+        MF1.append(mf1_)
+        WF1.append(wf1_)
+        K.append(k_)
+        F1_w.append(f1_[0])
+        F1_n1.append(f1_[1])
+        F1_n2.append(f1_[2])
+        F1_n3.append(f1_[3])
+        F1_r.append(f1_[4])
+        # Pre.append(pre_)
+        # Rec.append(rec_)
 
-            # # Evaluate the model on the subject data
-            y_true_, y_pred_, loss, duration = \
-                run_epoch(
-                    sess=sess, network=test_net,
-                    inputs=x, targets=y, targets_smoothed=y_smoothed,
-                    seq_length=3,
-                    smoothing=smoothing,
-                    train_op=tf.no_op(),
-                    output_dir=output_dir,
-                    fold_idx=fold_idx
-                )
-
-            n_examples = len(y_true)
-
-            cm_ = confusion_matrix(y_true_, y_pred_)
-            acc_ = np.mean(y_true_ == y_pred_)
-            mf1_ = f1_score(y_true_, y_pred_, average="macro")
-            k_ = cohen_kappa_score(y_true_, y_pred_)
-            wf1_ = f1_score(y_true_, y_pred_, average="weighted")
-            f1_ = f1_score(y_true_, y_pred_, average=None)
-            # pre_ = precision_score(y_true_, y_pred_)
-            # rec_ = recall_score(y_true_, y_pred_)
-
-            save_dict = {
-                "test_files": test_files,
-                "cm": cm_,
-                "acc": acc_,
-                "mf1": mf1_
-            }
-            np.savez(f"{output_dir}/performance_fold{fold_idx}.npz", **save_dict)
-
-            # Report performance
-            print_performance(
-                sess, test_net.name,
-                n_examples, duration, loss,
-                cm_, acc_, mf1_
-            )
-
-            # All folds
-            Acc.append(acc_)
-            MF1.append(mf1_)
-            WF1.append(wf1_)
-            K.append(k_)
-            F1_w.append(f1_[0])
-            F1_n1.append(f1_[1])
-            F1_n2.append(f1_[2])
-            F1_n3.append(f1_[3])
-            F1_r.append(f1_[4])
-            # Pre.append(pre_)
-            # Rec.append(rec_)
-
-            y_true.extend(y_true_)
-            y_pred.extend(y_pred_)
+        y_true.extend(y_true_)
+        y_pred.extend(y_pred_)
 
     # Overall performance
     print("[{}] Overall prediction performance\n".format(datetime.now()))
@@ -278,8 +291,7 @@ def predict_on_feature_net(
     k = cohen_kappa_score(y_true, y_pred)
     wf1 = f1_score(y_true, y_pred, average="weighted")
     per_class_f1 = f1_score(y_true, y_pred, average=None)
-    # pre = precision_score(y_true, y_pred)
-    # rec = recall_score(y_true, y_pred)
+
 
 
     print((
@@ -291,51 +303,32 @@ def predict_on_feature_net(
         "Per-class-f1: w={:.1f}, n1={:.1f}, n2={:.1f}, n3={:.1f} , rem={:.1f}").format(
         per_class_f1[0]*100, per_class_f1[1]*100, per_class_f1[2]*100, per_class_f1[3]*100, per_class_f1[4]*100
     ))
-    print(cm)
-    save_dict = {
-        "y_true": y_true,
-        "y_pred": y_pred,
-        "cm": cm,
-        "acc": acc,
-        "mf1": mf1,
-        "wf1": wf1,
-        "k": k
-        # "precision": pre,
-        # "recall": rec
-    }
-    print(f"alfa = {ALPHA}")
-    np.savez(f"{output_dir}/performance_overall.npz", **save_dict)
+    
+    print(f"alfa = {alpha}")
+    #np.savez(f"{output_dir}/performance_overall.npz", **save_dict)
 
-    print(f" n={n_examples}, acc={round(np.mean(Acc)*100,1)} ± {round(np.std(Acc)*100,1)}, mf1={round(np.mean(MF1)*100,1)} ± {round(np.std(MF1)*100,1)}, wf1={round(np.mean(WF1)*100,1)} ± {round(np.std(WF1)*100,1)}, k={round(np.mean(K)*100,1)} ± {round(np.std(K)*100,1)}")
+    print(f"n={n_examples}, acc={round(np.mean(Acc)*100,1)} ± {round(np.std(Acc)*100,1)}, mf1={round(np.mean(MF1)*100,1)} ± {round(np.std(MF1)*100,1)}, wf1={round(np.mean(WF1)*100,1)} ± {round(np.std(WF1)*100,1)}, k={round(np.mean(K)*100,1)} ± {round(np.std(K)*100,1)}")
     print(f"Per-class-f1: w={round(np.mean(F1_w)*100,1)} ± {round(np.std(F1_w)*100,1)}, n1={round(np.mean(F1_n1)*100,1)} ± {round(np.std(F1_n1)*100,1)}, n2={round(np.mean(F1_n2)*100,1)} ± {round(np.std(F1_n2)*100,1)}, n3={round(np.mean(F1_n3)*100,1)} ± {round(np.std(F1_n3)*100,1)}, rem={round(np.mean(F1_r)*100,1)} ± {round(np.std(F1_r)*100,1)}")
+    print(f"\n ACS:{np.round(np.mean(acs),3)}\n ±\n std:{np.round(np.std(acs),3)}\n")
+    print(f"\n ECE:{np.round(ece['expected_calibration_error'], 3)}\n ACC:{np.round(ece['avg_accuracy'], 3)}\n CONF:{np.round(ece['avg_confidence'], 3)}\n")
 
-    save_dict = {
-        "y_true": y_true,
-        "y_pred": y_pred,
-        "acc": Acc,
-        "mf1": MF1,
-        "wf1": WF1,
-        "k": K,
-        "F1": [F1_w,F1_n1,F1_n2,F1_n3,F1_r]
-        # "precision": Pre,
-        # "recall": Rec
-    }
-    np.savez(f"{output_dir}/performance_overall_folds.npz", **save_dict)
+
+   
 
 
 def main(argv=None):
     # Output dir
-    if not os.path.exists(FLAGS.output_dir):
-        os.makedirs(FLAGS.output_dir)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
-    n_folds = 10
+    
 
     predict_on_feature_net(
-        data_dir=FLAGS.data_dir,
-        model_dir=FLAGS.model_dir,
-        output_dir=FLAGS.output_dir,
+        data_dir=data_dir,
+        model_dir=model_dir,
+        output_dir=output_dir,
         n_folds=n_folds,
-        smoothing=ALPHA
+        smoothing=alpha
     )
 
 
