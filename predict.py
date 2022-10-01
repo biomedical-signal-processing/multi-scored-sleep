@@ -18,6 +18,8 @@ from deepsleepLite.sleep_stages import (NUM_CLASSES,
                                         EPOCH_SEC_LEN,
                                         SAMPLING_RATE)
 from Calibration_ACS import*
+from tabulate import tabulate
+
 
 # Ignore os, tf depecration errors
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -96,6 +98,7 @@ def run_epoch(
         each_y_true = []
         each_y_pred = []
         each_hypno_sc = []
+        each_conf_pred = []
         
        
 
@@ -124,7 +127,8 @@ def run_epoch(
 
             each_y_true.extend(y_batch)
             each_y_pred.extend(y_pred)
-            each_hypno_sc.extend(y_batch_cond)
+            each_conf_pred.extend([np.max(prob_tmp)])
+            each_hypno_sc.append(y_batch_cond[0])
             each_prob_pred.append(prob_tmp)
 
             total_loss += loss_value
@@ -139,7 +143,8 @@ def run_epoch(
         prob_pred.append(each_prob_pred)
 
         # Compute ECE
-        ece.append(compute_calibration(each_y_true, each_y_pred, each_prob_pred, num_bins=20))
+        each_y_true = [int(i) for i in each_y_true]
+        ece.append(compute_calibration(np.array(each_y_true), np.array(each_y_pred), np.array(each_conf_pred), num_bins=20))
 
         # Compute ACS
         acs.append(compute_similarity(each_prob_pred, each_hypno_sc))
@@ -227,7 +232,7 @@ def predict_on_feature_net(
         print("[{}] Predicting ...\n".format(datetime.now()))
 
         # # Evaluate the model on the subject data
-        y_true_, y_pred_, loss, duration, ece, = \
+        y_true_, y_pred_, loss, duration, ece, acs = \
             run_epoch(
                 sess=sess, network=test_net,
                 inputs=x, targets=y, targets_smoothed=y_smoothed,
@@ -282,38 +287,33 @@ def predict_on_feature_net(
 
     # Overall performance
     print("[{}] Overall prediction performance\n".format(datetime.now()))
-    y_true = np.asarray(y_true)
-    y_pred = np.asarray(y_pred)
-    n_examples = len(y_true)
-    cm = confusion_matrix(y_true, y_pred)
-    acc = np.mean(y_true == y_pred)
-    mf1 = f1_score(y_true, y_pred, average="macro")
-    k = cohen_kappa_score(y_true, y_pred)
-    wf1 = f1_score(y_true, y_pred, average="weighted")
-    per_class_f1 = f1_score(y_true, y_pred, average=None)
 
 
+    Acc = np.round(np.mean(Acc)*100,1)
+    MF1 = np.round(np.mean(MF1)*100,1)
+    WF1 = np.round(np.mean(WF1)*100,1)
+    K = np.round(np.mean(K)*100,1)
+    F1_w = np.round(np.mean(F1_w)*100,1)
+    F1_n1 = np.round(np.mean(F1_n1)*100,1)
+    F1_n2 = np.round(np.mean(F1_n2)*100,1)
+    F1_n3 = np.round(np.mean(F1_n3)*100,1)
+    F1_r = np.round(np.mean(F1_r)*100,1)
 
-    print((
-        "n={}, acc={:.1f}, mf1={:.1f} wf1={:.1f} k={:.1f}".format(
-            n_examples, acc*100, mf1*100, wf1*100, k*100
-        )
-    ))
-    print((
-        "Per-class-f1: w={:.1f}, n1={:.1f}, n2={:.1f}, n3={:.1f} , rem={:.1f}").format(
-        per_class_f1[0]*100, per_class_f1[1]*100, per_class_f1[2]*100, per_class_f1[3]*100, per_class_f1[4]*100
-    ))
-    
-    print(f"alfa = {alpha}")
-    #np.savez(f"{output_dir}/performance_overall.npz", **save_dict)
-
-    print(f"n={n_examples}, acc={round(np.mean(Acc)*100,1)} ± {round(np.std(Acc)*100,1)}, mf1={round(np.mean(MF1)*100,1)} ± {round(np.std(MF1)*100,1)}, wf1={round(np.mean(WF1)*100,1)} ± {round(np.std(WF1)*100,1)}, k={round(np.mean(K)*100,1)} ± {round(np.std(K)*100,1)}")
-    print(f"Per-class-f1: w={round(np.mean(F1_w)*100,1)} ± {round(np.std(F1_w)*100,1)}, n1={round(np.mean(F1_n1)*100,1)} ± {round(np.std(F1_n1)*100,1)}, n2={round(np.mean(F1_n2)*100,1)} ± {round(np.std(F1_n2)*100,1)}, n3={round(np.mean(F1_n3)*100,1)} ± {round(np.std(F1_n3)*100,1)}, rem={round(np.mean(F1_r)*100,1)} ± {round(np.std(F1_r)*100,1)}")
-    print(f"\n ACS:{np.round(np.mean(acs),3)}\n ±\n std:{np.round(np.std(acs),3)}\n")
-    print(f"\n ECE:{np.round(ece['expected_calibration_error'], 3)}\n ACC:{np.round(ece['avg_accuracy'], 3)}\n CONF:{np.round(ece['avg_confidence'], 3)}\n")
+    ece__ = []
+    acc__ = []
+    conf__ = []
+    for k in ece:
+      ece__.append(k['expected_calibration_error'])
+      acc__.append(k['avg_accuracy'])
+      conf__.append(k['avg_confidence'])
+    ece__ = np.round(np.mean(ece__),3)
+    acc__ = np.round(np.mean(acc__),4)
+    conf__ = np.round(np.mean(conf__),4)
+    acs = f"{np.round(np.mean(acs),3)} ± {np.round(np.std(acs),3)}"
 
 
-   
+    print(tabulate([[dataset, f"DSNL {model}", Acc, MF1, WF1, K, F1_w, F1_n1, F1_n2, F1_n3, F1_r]], headers=['Dataset','Model','Accuracy %', 'MF1 %', 'WF1 %','Cohen-k %', 'W %', 'N1 %', 'N2 %','N3 %','REM %'], tablefmt="pretty"))
+    print(tabulate([[dataset, f"DSNL {model}", ece__, acc__, conf__, acs]], headers=['Dataset','Model','ECE', 'Accuracy', 'Confidence','ACS'],tablefmt="pretty"))
 
 
 def main(argv=None):
