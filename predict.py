@@ -147,7 +147,7 @@ def run_epoch(
         ece.append(compute_calibration(np.array(each_y_true), np.array(each_y_pred), np.array(each_conf_pred), num_bins=20))
 
         # Compute ACS
-        acs.append(compute_similarity(each_prob_pred, each_hypno_sc))
+        acs.append(compute_acs(each_prob_pred, each_hypno_sc))
 
 
     duration = time.time() - start_time
