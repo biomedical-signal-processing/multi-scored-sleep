@@ -1,9 +1,6 @@
 import os
 import numpy as np
 
-
-
-
 class DataLoader(object):
 
     def __init__(self, data_dir, n_folds, fold_idx):
