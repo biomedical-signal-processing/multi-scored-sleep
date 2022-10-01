@@ -190,17 +190,14 @@ def fc(name, input_var, n_hiddens, bias=None, wd=None, freeze_layer=False, norma
 
 def label_smoothing_uniform(name, target_var, K, alfa):
     with tf.compat.v1.variable_scope(name) as scope:
-        print(f"--------------------------alfa:{alfa}------------------------")
         target_var_one_hot = tf.one_hot(target_var, depth=5)
         target_var_smoothed = alfa * (1 / K) + (1 - alfa) * target_var_one_hot
         return target_var_smoothed
 
 
-def label_smoothing_empirical(name, target_var, target_var_conditioned, alfa):
+def label_smoothing_soft_consensus(name, target_var, target_var_conditioned, alfa):
     with tf.compat.v1.variable_scope(name) as scope:
         alfa = tf.cast(alfa, tf.float32)
-        print(f"--------------------------alfa:{alfa}------------------------")
         target_var_one_hot = tf.one_hot(target_var, depth=5)
         target_var_smoothed = alfa * target_var_conditioned + (1 - alfa) * target_var_one_hot
-        #target_var_smoothed = target_var_conditioned
         return target_var_smoothed
