@@ -2,7 +2,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Calibration
+# Expected Calibration Error (ECE)
 
 def compute_calibration(true_labels, pred_labels, confidences, num_bins):
     """Collects predictions into bins used to draw a reliability diagram.
@@ -51,7 +51,7 @@ def compute_calibration(true_labels, pred_labels, confidences, num_bins):
     ece  = abs(avg_acc-avg_conf)
     #ece = np.sum(gaps * bin_counts) / np.sum(bin_counts)
     mce = np.max(gaps)
-
+  
     return {"accuracies": bin_accuracies,
             "confidences": bin_confidences,
             "counts": bin_counts,
@@ -62,27 +62,12 @@ def compute_calibration(true_labels, pred_labels, confidences, num_bins):
             "max_calibration_error": mce}
 
 
-# Averaged Cosine Similarity
-
+# Averaged Cosine Similarity (ACS)
 def cos_sim(p,q):
     return np.dot(p,q)/(np.linalg.norm(p)*np.linalg.norm(q))
-   
-def load_hypno_sc(test_files, mask, dodo=False,dodh=False):
-  # Load hypno_sc
-  hypno_sc = []
-  for i, file in enumerate(test_files):
-      yy = np.load(f"{file}/soft_consensus.npz")["soft_consensus"]
-      # Delete unlabeled data [-1]
-      yy = yy[mask[i],:]
-      hypno_sc.append(yy)
-  return hypno_sc
 
-def compute_acs(hypno, test_files, mask):
-    hypno_sc = load_hypno_sc(test_files, mask)
+def compute_acs(hypno_true, hypno_pred):
     cos_ = []
-    for i in range(len(hypno)):
-        cos = []
-        for n, epoch in enumerate(hypno[i]): 
-            cos.append(cos_sim(epoch, hypno_sc[i][n, :]))
-        cos_.append(np.mean(cos))
-    return np.mean(cos_), np.std(cos_)
+    for i in range(len(hypno_true)):
+      cos_.append(cos_sim(hypno_true[i], hypno_pred[i]))
+    return np.mean(cos_)
