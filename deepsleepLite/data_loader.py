@@ -196,7 +196,7 @@ class DataLoader(object):
             labels.append(y)
             labels_smoothed.append(y_smoothed)
 
-        return data, labels, labels_smoothed, 
+        return data, labels, labels_smoothed, test_files
         
     def load_TL(self, data_dir, db="dodh_o"):
       """Load test data and labels in prediction.py from test list."""
