@@ -9,7 +9,7 @@ from tensorflow.compat.v1 import ConfigProto
 
 from datetime import datetime
 import scipy
-from sklearn.metrics import confusion_matrix, f1_score, cohen_kappa_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, f1_score, cohen_kappa_score
 
 from deepsleepLite.data_loader import DataLoader
 from deepsleepLite.model import SleepNetLite
@@ -87,12 +87,21 @@ def run_epoch(
     prob_pred = []
     ece = []
     acs = []
+    acc = []
+    mf1 = []
+    wf1 = []
+    k = []
+    f1_w = []
+    f1_n1 = []
+    f1_n2 = []
+    f1_n3 = []
+    f1_r = []
     
 
     total_loss, n_batches = 0.0, 0
 
     for sub_f_idx, each_data in enumerate(zip(inputs, targets, targets_smoothed)):
-
+        print(".", end="",flush=True)
         each_x, each_y, each_y_cond = each_data
 
         each_y_true = []
@@ -149,13 +158,34 @@ def run_epoch(
         # Compute ACS
         acs.append(compute_acs(each_prob_pred, each_hypno_sc))
 
+        # Compute Performance
+        acc.append(np.mean(accuracy_score(each_y_true, each_y_pred)))
+        mf1.append(f1_score(each_y_true, each_y_pred, average="macro"))
+        k.append(cohen_kappa_score(each_y_true, each_y_pred))
+        wf1.append(f1_score(each_y_true, each_y_pred, average="weighted"))
+        f1_ = f1_score(each_y_true, each_y_pred, average=None)
+        cls = np.setdiff1d(np.array([0,1,2,3,4]),np.unique(each_y_pred))
+        # Check if there is at least one example for each class
+        d = {}
+        for n,i in enumerate(np.unique(each_y_pred)):
+          d[i] = f1_[n]
+        if cls.size > 0:
+          for i in cls:
+            d[i] = np.nan
+        f1_w.append(d[0])
+        f1_n1.append(d[1])
+        f1_n2.append(d[2])
+        f1_n3.append(d[3])
+        f1_r.append(d[4])
 
-    duration = time.time() - start_time
+
+    duration = np.round(time.time() - start_time,1)
     total_loss /= n_batches
     total_y_pred = np.hstack(y)
     total_y_true = np.hstack(y_true)
+    print(acc)
 
-    return total_y_true, total_y_pred, total_loss, duration, ece, acs
+    return duration, acc, mf1, k, wf1, f1_w, f1_n1, f1_n2, f1_n3, f1_r, ece, acs
 
 
 def predict_on_feature_net(
@@ -211,9 +241,9 @@ def predict_on_feature_net(
         checkpoint_path = f"{model_dir}/fold{fold_idx}/sleepnetlite/checkpoint/"
         test_path = f"{model_dir}/fold{fold_idx}/sleepnetlite/data_file{fold_idx}.npz"
 
-        print(f"checkpoint_path: {checkpoint_path} \n")  
+        print(f"Checkpoint_path: {checkpoint_path} \n")  
                   
-        print(f"test_path: {test_path} \n")
+        print(f"Test_path: {test_path} \n")
 
         if not os.path.exists(checkpoint_path):
             Acc.append('NaN')
@@ -221,18 +251,18 @@ def predict_on_feature_net(
         # Restore the trained model
         saver = tf.train.Saver()
         saver.restore(sess, tf.train.latest_checkpoint(checkpoint_path))
-        print("Model restored from: {}\n".format(tf.train.latest_checkpoint(checkpoint_path)))
+        print(f"Model restored from: {tf.train.latest_checkpoint(checkpoint_path)}\n")
 
         # Load testing data -
         x, y, y_smoothed, test_files = data_loader.load_testdata_cv(test_path)
 
-        print(f"Patient predicted: {test_files} \n")
+        print(f"Patients predicted: {test_files} \n")
 
         # Loop each epoch
-        print("[{}] Predicting ...\n".format(datetime.now()))
+        print(f"[{datetime.now()}] Predicting ",end="",flush=True)
 
-        # # Evaluate the model on the subject data
-        y_true_, y_pred_, loss, duration, ece, acs = \
+        # Evaluate the model on the subject data
+        duration, acc, mf1, k, wf1, f1_w, f1_n1, f1_n2, f1_n3, f1_r, ece, acs = \
             run_epoch(
                 sess=sess, network=test_net,
                 inputs=x, targets=y, targets_smoothed=y_smoothed,
@@ -242,76 +272,29 @@ def predict_on_feature_net(
                 output_dir=output_dir,
                 fold_idx=fold_idx
             )
+        print(f"Done! [Time elapsed: {duration} s]")
 
-        n_examples = len(y_true)
-
-        cm_ = confusion_matrix(y_true_, y_pred_)
-        acc_ = np.mean(y_true_ == y_pred_)
-        mf1_ = f1_score(y_true_, y_pred_, average="macro")
-        k_ = cohen_kappa_score(y_true_, y_pred_)
-        wf1_ = f1_score(y_true_, y_pred_, average="weighted")
-        f1_ = f1_score(y_true_, y_pred_, average=None)
-        # pre_ = precision_score(y_true_, y_pred_)
-        # rec_ = recall_score(y_true_, y_pred_)
-
-        save_dict = {
-            "test_files": test_files,
-            "cm": cm_,
-            "acc": acc_,
-            "mf1": mf1_
-        }
-        np.savez(f"{output_dir}/performance_fold{fold_idx}.npz", **save_dict)
-
-        # Report performance
-        print_performance(
-            sess, test_net.name,
-            n_examples, duration, loss,
-            cm_, acc_, mf1_
-        )
-
-        # All folds
-        Acc.append(acc_)
-        MF1.append(mf1_)
-        WF1.append(wf1_)
-        K.append(k_)
-        F1_w.append(f1_[0])
-        F1_n1.append(f1_[1])
-        F1_n2.append(f1_[2])
-        F1_n3.append(f1_[3])
-        F1_r.append(f1_[4])
-        # Pre.append(pre_)
-        # Rec.append(rec_)
-
-        y_true.extend(y_true_)
-        y_pred.extend(y_pred_)
 
     # Overall performance
-    print("[{}] Overall prediction performance\n".format(datetime.now()))
-
-
-    Acc = np.round(np.mean(Acc)*100,1)
-    MF1 = np.round(np.mean(MF1)*100,1)
-    WF1 = np.round(np.mean(WF1)*100,1)
-    K = np.round(np.mean(K)*100,1)
-    F1_w = np.round(np.mean(F1_w)*100,1)
-    F1_n1 = np.round(np.mean(F1_n1)*100,1)
-    F1_n2 = np.round(np.mean(F1_n2)*100,1)
-    F1_n3 = np.round(np.mean(F1_n3)*100,1)
-    F1_r = np.round(np.mean(F1_r)*100,1)
-
-    ece__ = []
-    acc__ = []
+    Acc = np.round(np.mean(acc)*100,1)
+    MF1 = np.round(np.mean(mf1)*100,1)
+    K = np.round(np.mean(k)*100,1)
+    WF1 = np.round(np.mean(wf1)*100,1)
+    F1_w = np.round(np.nanmean(f1_w)*100,1)
+    F1_n1 = np.round(np.nanmean(f1_n1)*100,1)
+    F1_n2 = np.round(np.nanmean(f1_n2)*100,1)
+    F1_n3 = np.round(np.nanmean(f1_n3)*100,1)
+    F1_r = np.round(np.nanmean(f1_r)*100,1)
+    
+    acc__ = np.round(np.mean(acc),3)
     conf__ = []
     for k in ece:
-      ece__.append(k['expected_calibration_error'])
-      acc__.append(k['avg_accuracy'])
       conf__.append(k['avg_confidence'])
-    ece__ = np.round(np.mean(ece__),3)
-    acc__ = np.round(np.mean(acc__),4)
-    conf__ = np.round(np.mean(conf__),4)
+    conf__ = np.round(np.mean(conf__),3)
+    ece__ = abs(acc__/100 - conf__)
     acs = f"{np.round(np.mean(acs),3)} ± {np.round(np.std(acs),3)}"
 
-
+    print("\nOverall Performance Tables: \n")
     print(tabulate([[dataset, f"DSNL {model}", Acc, MF1, WF1, K, F1_w, F1_n1, F1_n2, F1_n3, F1_r]], headers=['Dataset','Model','Accuracy %', 'MF1 %', 'WF1 %','Cohen-k %', 'W %', 'N1 %', 'N2 %','N3 %','REM %'], tablefmt="pretty"))
     print(tabulate([[dataset, f"DSNL {model}", ece__, acc__, conf__, acs]], headers=['Dataset','Model','ECE', 'Accuracy', 'Confidence','ACS'],tablefmt="pretty"))
 
