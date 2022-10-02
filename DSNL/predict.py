@@ -33,13 +33,13 @@ n_folds = 1
 alpha = 0
 
 if dataset == "DODO":
-  data_dir = "/content/drive/MyDrive/Experiment _Paper/DOD-O_V2"
+  data_dir = "/content/drive/MyDrive/Experiments/data/DODO"
   fold_idx = 1
 elif dataset == "DODH":
-  data_dir = "/content/drive/MyDrive/Experiment _Paper/DOD-H_V2"
+  data_dir = "/content/drive/MyDrive/Experiments/data/DODH"
   fold_idx = 24
 elif dataset == "ISRC":
-  data_dir = "/content/drive/MyDrive/Experiment _Paper/IS-RC_filtered_one+smooth_correct"
+  data_dir = "/content/drive/MyDrive/Experiments/data/ISRC"
   fold_idx = 4
 
 coding2stages = {
