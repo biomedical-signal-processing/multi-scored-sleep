@@ -41,7 +41,11 @@ y_true = output["y_true"][idx_paz]
 hyp_pred = np.asarray(output["prob_pred"][idx_paz])
 y_pred = [np.argmax(i) for i in hyp_pred]
 hyp_true = data["y_smoothed"]
-hyp_true = hyp_true[1:len(hyp_true)-1]
+print(len(hyp_true))
+print(len(hyp_pred))
+if arch == "DSNL":
+  hyp_true = hyp_true[1:len(hyp_true)-1]
+
 
 print(f"Architecture: {arch} {model}")
 print(f"Dataset: {dataset}, Subject: {allfiles[idx_paz][:-5]}")
