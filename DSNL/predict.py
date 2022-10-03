@@ -301,7 +301,7 @@ def predict_on_feature_net(
       "hypno_pred":hypno_pred
     }
 
-    np.savez(f"{output_dir}/output_fold{fold_idx}_{dataset}_{model}.npz", **save_dict)
+    np.savez(f"/content/drive/MyDrive/Experiments/plot_data/DSNL/output_fold{fold_idx}_{dataset}_{model}.npz", **save_dict)
     print("Prediction saved to path {output_dir}/output_fold{fold_idx}_{dataset}_{model}.npz")
 
 def main(argv=None):
