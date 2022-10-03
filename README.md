@@ -41,7 +41,7 @@ There are two parameteres:
 1) Dataset - "DODO", "DODH", "ISRC"
 2) Model - "LSSC", "LSU", "base"
 
-The user can modify the parameters at will to execute the code on different dataset and trained model.
+You can modify the parameters to execute the code on different dataset and trained model.
 
 ```ruby
 3) !python /content/Notebook_for_SLEEP/Plot_Subj.py "SSN" "ISRC" "LSU" "0"
@@ -56,6 +56,6 @@ There are four parameteres:
 3) Model - "LSSC", "LSU", "base"
 4) Subject Index - from 0 to 4 for DODO, 0 for DODH, from 0 to 6 for ISRC (each index is a different subject of the dataset)
 
-As before, the user can change the parameters at will.
+As before, you can change the parameters at will.
 
 (N.B. Each time Plot_Subj.py is executed, previous png figures are automatically overwritten)
