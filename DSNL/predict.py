@@ -94,6 +94,10 @@ def run_epoch(
     f1_n2 = []
     f1_n3 = []
     f1_r = []
+    all_y_true = []
+    all_y_pred = []
+    all_hypno_true = []
+    all_hypno_pred = []
     
 
     total_loss, n_batches = 0.0, 0
@@ -104,12 +108,11 @@ def run_epoch(
 
         each_y_true = []
         each_y_pred = []
-        each_hypno_sc = []
+        each_hypno_true = []
+        each_hypno_pred = []
         each_conf_pred = []
-        
-       
 
-        each_prob_pred = []
+
         # y_batch_seq, batch_len, epochs_shifts
         for x_batch, y_batch, y_batch_cond in iterate_minibatches_prediction(
                 inputs=each_x,
@@ -135,8 +138,8 @@ def run_epoch(
             each_y_true.extend(y_batch)
             each_y_pred.extend(y_pred)
             each_conf_pred.extend([np.max(prob_tmp)])
-            each_hypno_sc.append(y_batch_cond[0])
-            each_prob_pred.append(prob_tmp)
+            each_hypno_true.append(y_batch_cond[0])
+            each_hypno_pred.append(prob_tmp)
 
             total_loss += loss_value
             n_batches += 1
@@ -147,14 +150,14 @@ def run_epoch(
 
         y.append(each_y_pred)
         y_true.append(each_y_true)
-        prob_pred.append(each_prob_pred)
+        prob_pred.append(each_hypno_pred)
 
         # Compute ECE
         each_y_true = [int(i) for i in each_y_true]
         ece.append(compute_calibration(np.array(each_y_true), np.array(each_y_pred), np.array(each_conf_pred), num_bins=20))
 
         # Compute ACS
-        acs.append(compute_acs(each_prob_pred, each_hypno_sc))
+        acs.append(compute_acs(each_hypno_true, each_hypno_pred))
 
         # Compute Performance
         acc.append(np.mean(accuracy_score(each_y_true, each_y_pred)))
@@ -176,13 +179,20 @@ def run_epoch(
         f1_n3.append(d[3])
         f1_r.append(d[4])
 
+        # Storing all date to save
+        all_y_true.append(each_y_true)
+        all_y_pred.append(each_y_pred)
+        all_hypno_true.append(each_hypno_true)
+        all_hypno_pred.append(each_hypno_pred)
+
+
 
     duration = np.round(time.time() - start_time,1)
     total_loss /= n_batches
     total_y_pred = np.hstack(y)
     total_y_true = np.hstack(y_true)
 
-    return duration, acc, mf1, k, wf1, f1_w, f1_n1, f1_n2, f1_n3, f1_r, ece, acs
+    return duration, acc, mf1, k, wf1, f1_w, f1_n1, f1_n2, f1_n3, f1_r, ece, acs, all_y_true, all_y_pred, all_hypno_true, all_hypno_pred
 
 
 def predict_on_feature_net(
@@ -258,7 +268,7 @@ def predict_on_feature_net(
         print(f"[{datetime.now()}] Predicting ",end="",flush=True)
 
         # Evaluate the model on the subject data
-        duration, acc, mf1, k, wf1, f1_w, f1_n1, f1_n2, f1_n3, f1_r, ece, acs = \
+        duration, acc, mf1, k, wf1, f1_w, f1_n1, f1_n2, f1_n3, f1_r, ece, acs, all_y_true, all_y_pred, all_hypno_true, all_hypno_pred = \
             run_epoch(
                 sess=sess, network=test_net,
                 inputs=x, targets=y, targets_smoothed=y_smoothed,
@@ -292,17 +302,18 @@ def predict_on_feature_net(
     print("\nOverall Performance Tables: \n")
     print(tabulate([[dataset, f"DSNL {model}", Acc, MF1, WF1, K, F1_w, F1_n1, F1_n2, F1_n3, F1_r]], headers=['Dataset','Model','Accuracy %', 'MF1 %', 'WF1 %','Cohen-k %', 'W %', 'N1 %', 'N2 %','N3 %','REM %'], tablefmt="pretty"))
     print(tabulate([[dataset, f"DSNL {model}", ece_, acc_, conf, acs]], headers=['Dataset','Model','ECE', 'Accuracy', 'Confidence','ACS'],tablefmt="pretty"))
-    
-    # Saving prediction
+
+  
+    # Saving Prediction
     save_dict = {
-      "y_true" : y_true,
-      "y_pred":y_pred,
-      "hypno_true":hypno_true,
-      "hypno_pred":hypno_pred
+      "y_true" : all_y_true,
+      "y_pred":all_y_pred,
+      "hypno_true":all_hypno_true,
+      "hypno_pred":all_hypno_pred
     }
 
     np.savez(f"/content/drive/MyDrive/Experiments/plot_data/DSNL/output_fold{fold_idx}_{dataset}_{model}.npz", **save_dict)
-    print("Prediction saved to path {output_dir}/output_fold{fold_idx}_{dataset}_{model}.npz")
+    print(f"Prediction saved to path /content/drive/MyDrive/Experiments/plot_data/DSNL/output_fold{fold_idx}_{dataset}_{model}.npz")
 
 def main(argv=None):
 
