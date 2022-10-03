@@ -57,4 +57,5 @@ There are four parameteres:
 4) Subject Index - from 0 to 4 for DODO, 0 for DODH, from 0 to 6 for ISRC (each index is a different subject of the dataset)
 
 As before, the user can change the parameters at will.
+
 (N.B. Each time Plot_Subj.py is executed, previous png figures are automatically overwritten)
