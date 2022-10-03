@@ -167,10 +167,13 @@ print("\nOverall Performance Tables: \n")
 print(tabulate([[dataset, f"SSN {model}", Acc, MF1, WF1, K, F1_w, F1_n1, F1_n2, F1_n3, F1_r]], headers=['Dataset','Model','Accuracy %', 'MF1 %', 'WF1 %','Cohen-k %', 'W %', 'N1 %', 'N2 %','N3 %','REM %'], tablefmt="pretty"))
 print(tabulate([[dataset, f"SSN {model}", ece_, acc_, conf, acs]], headers=['Dataset','Model','ECE', 'Accuracy', 'Confidence','ACS'],tablefmt="pretty"))
 
-save_dict = {"y_true" : y_true,
-"y_pred":y_pred,
-"hypno_true":hypno_true,
-"hypno_pred":hypno_pred
-}
+# Saving prediction
+  save_dict = {
+    "y_true" : y_true,
+    "y_pred":y_pred,
+    "hypno_true":hypno_true,
+    "hypno_pred":hypno_pred
+  }
 
-np.savez(f"{output_dir}/output_fold{fold_idx}_{dataset}_{model}.npz", **save_dict)
+  np.savez(f"{output_dir}/output_fold{fold_idx}_{dataset}_{model}.npz", **save_dict)
+  print("Prediction saved to path {output_dir}/output_fold{fold_idx}_{dataset}_{model}.npz")
