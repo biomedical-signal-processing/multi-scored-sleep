@@ -62,6 +62,12 @@ f1_n1 = []
 f1_n2 = []
 f1_n3 = []
 f1_r = []
+all_y_true = []
+all_y_pred = []
+all_hypno_true = []
+all_hypno_pred = []
+
+
 
 for i, fold in enumerate(folds):
     # Load test file
@@ -116,6 +122,12 @@ for i, fold in enumerate(folds):
         for i in range(len(hypno_pred)):
           y_conf.append(np.max(hypno_pred[i,:]))
         
+        # Storing all date to save
+        all_y_true.append(y_true)
+        all_y_pred.append(y_pred)
+        all_hypno_true.append(hypno_true)
+        all_hypno_pred.append(hypno_pred)
+
         # Compute ECE
         ece.append(compute_calibration(np.array(y_true), np.array(y_pred), np.array(y_conf), num_bins=20))
 
@@ -167,10 +179,11 @@ print("\nOverall Performance Tables: \n")
 print(tabulate([[dataset, f"SSN {model}", Acc, MF1, WF1, K, F1_w, F1_n1, F1_n2, F1_n3, F1_r]], headers=['Dataset','Model','Accuracy %', 'MF1 %', 'WF1 %','Cohen-k %', 'W %', 'N1 %', 'N2 %','N3 %','REM %'], tablefmt="pretty"))
 print(tabulate([[dataset, f"SSN {model}", ece_, acc_, conf, acs]], headers=['Dataset','Model','ECE', 'Accuracy', 'Confidence','ACS'],tablefmt="pretty"))
 
-save_dict = {"y_true" : y_true,
-"y_pred":y_pred,
-"hypno_true":hypno_true,
-"hypno_pred":hypno_pred
+save_dict = {
+  "y_true" : all_y_true,
+  "y_pred":all_y_pred,
+  "hypno_true":all_hypno_true,
+  "hypno_pred":all_hypno_pred
 }
 
 np.savez(f"/content/drive/MyDrive/Experiments/plot_data/SSN/output_fold{fold_idx}_{dataset}_{model}.npz", **save_dict)
