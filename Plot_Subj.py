@@ -28,23 +28,18 @@ if dataset == "DODO":
 
 elif dataset == "DODH":
   output = np.load(f"/content/drive/MyDrive/Experiments/plot_data/{arch}/output_fold24_{dataset}_{model}.npz",allow_pickle=True)
-  allfiles = ['Hpsg_24_.npz'] 
-  data = np.load(f"/content/drive/MyDrive/Experiments/data/DODH/{allfiles[idx_paz]}", allow_pickle=True)
+  allfiles = ['Hpsg_24_.npz']
 
 elif dataset == "ISRC":
   output = np.load(f"/content/drive/MyDrive/Experiments/plot_data/{arch}/output_fold4_{dataset}_{model}.npz",allow_pickle=True)
   allfiles = ['AL_29_030107.npz', 'AL_30_061108.npz', 'AL_31_010909.npz', 'AL_32_032408.npz', 'AL_33_042207.npz', 'AL_34_101908.npz', 'AL_35_032607.npz']
-  data = np.load(f"/content/drive/MyDrive/Experiments/data/ISRC/{allfiles[idx_paz]}", allow_pickle=True)
 
 
-y_true = output["y_true"][idx_paz]
-hyp_pred = np.asarray(output["prob_pred"][idx_paz])
-y_pred = [np.argmax(i) for i in hyp_pred]
-hyp_true = data["y_smoothed"]
-print(len(hyp_true))
-print(len(hyp_pred))
-if arch == "DSNL":
-  hyp_true = hyp_true[1:len(hyp_true)-1]
+y_true = np.array(output["y_true"][idx_paz])
+y_pred = np.array(output["y_pred"][idx_paz])
+hypno_true = output["hypno_true"][idx_paz]
+hypno_pred = output["hypno_pred"][idx_paz]
+
 
 
 print(f"Architecture: {arch} {model}")
@@ -52,7 +47,7 @@ print(f"Dataset: {dataset}, Subject: {allfiles[idx_paz][:-5]}")
 
 acc = np.round(accuracy_score(y_true, y_pred)*100,1)
 print(f"Accurcay : {acc}")
-acs_ = np.round(acs(hyp_true,hyp_pred),3)
+acs_ = np.round(acs(hypno_true,hypno_pred),3)
 print(f"ACS : {acs_}")
 
 
@@ -91,13 +86,13 @@ print("Figure_Hypnogram.png saved to the path /content/Figure_Hypnogram.png")
 # Hypnodensity Pred
 fig, axes = plt.subplots(2, 1, dpi=300)
 fig.set_size_inches(30, 12)
-n_epoch = np.shape(hyp_pred)[0]
+n_epoch = np.shape(hypno_pred)[0]
 D = {
-    "W": hyp_pred[:,0],
-    "N1":hyp_pred[:,1],
-    "N2":hyp_pred[:,2],
-    "N3":hyp_pred[:,3],
-    "REM":hyp_pred[:,4]
+    "W": hypno_pred[:,0],
+    "N1":hypno_pred[:,1],
+    "N2":hypno_pred[:,2],
+    "N3":hypno_pred[:,3],
+    "REM":hypno_pred[:,4]
 }
 
 df = pd.DataFrame(D)
@@ -119,13 +114,13 @@ plt.xlabel("Time [min]",fontsize=15)
 plt.ylabel("Probability",fontsize=15)
 
 # Hypnodensity True
-n_epoch = np.shape(hyp_true)[0]
+n_epoch = np.shape(hypno_true)[0]
 D = {
-    "W": hyp_true[:,0],
-    "N1":hyp_true[:,1],
-    "N2":hyp_true[:,2],
-    "N3":hyp_true[:,3],
-    "REM":hyp_true[:,4]
+    "W": hypno_true[:,0],
+    "N1":hypno_true[:,1],
+    "N2":hypno_true[:,2],
+    "N3":hypno_true[:,3],
+    "REM":hypno_true[:,4]
 }
 
 df = pd.DataFrame(D)
