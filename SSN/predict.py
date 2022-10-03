@@ -33,10 +33,14 @@ features_description = json.load(open(rf"/content/drive/MyDrive/Experiments/data
 
 if dataset == "DODO":
   fold_idx = 1
+  test_files = ['Opsg_6_', 'Opsg_8_', 'Opsg_9_', 'Opsg_10_', 'Opsg_11_'] 
 elif dataset == "DODH":
   fold_idx = 24
+  test_files = ['Hpsg_24_']
 elif dataset == "ISRC":
   fold_idx = 4
+  test_files = ['AL_29_030107', 'AL_30_061108', 'AL_31_010909', 'AL_32_032408', 'AL_33_042207', 'AL_34_101908', 'AL_35_032607']
+
 
 folds = [f"{model_dir}/fold{fold_idx}"]
 
@@ -61,7 +65,7 @@ f1_r = []
 
 for i, fold in enumerate(folds):
     # Load test file
-    test_files = json.load(open(fr'{fold}/description.json'))["dataset_parameters"]["split"]["test"]
+    test_files = [f"/content/drive/MyDrive/Experiments/data/memmap/{dataset}/{i}"for i in test_files]
     TEST.extend(test_files)
     dataset_test = DreemDataset(groups_description, features_description=features_description,
                                 temporal_context=21,
@@ -103,6 +107,7 @@ for i, fold in enumerate(folds):
         hypno_true = np.load(f"{test_files[ii]}/soft_consensus.npz")["soft_consensus"]
         mask = (np.array([y in [0, 1, 2, 3, 4] for y in y_true]))
         
+   
         # Delete unlabeled data (-1)
         y_true = y_true[mask]
         y_pred = y_pred[mask]
@@ -161,3 +166,11 @@ acs = f"{np.round(np.mean(acs),3)} ± {np.round(np.std(acs),3)}"
 print("\nOverall Performance Tables: \n")
 print(tabulate([[dataset, f"SSN {model}", Acc, MF1, WF1, K, F1_w, F1_n1, F1_n2, F1_n3, F1_r]], headers=['Dataset','Model','Accuracy %', 'MF1 %', 'WF1 %','Cohen-k %', 'W %', 'N1 %', 'N2 %','N3 %','REM %'], tablefmt="pretty"))
 print(tabulate([[dataset, f"SSN {model}", ece_, acc_, conf, acs]], headers=['Dataset','Model','ECE', 'Accuracy', 'Confidence','ACS'],tablefmt="pretty"))
+
+save_dict = {"y_true" : y_true,
+"y_pred":y_pred,
+"hypno_true":hypno_true,
+"hypno_pred":hypno_pred
+}
+
+np.savez(f"{output_dir}/output_fold{fold_idx}_{dataset}_{model}.npz", **save_dict)
