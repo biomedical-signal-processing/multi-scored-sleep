@@ -188,4 +188,4 @@ save_dict = {
 }
 
 np.savez(f"/content/drive/MyDrive/Experiments/plot_data/SSN/output_fold{fold_idx}_{dataset}_{model}.npz", **save_dict)
-print("Prediction saved to path /content/drive/MyDrive/Experiments/plot_data/SSN/output_fold{fold_idx}_{dataset}_{model}.npz")
+print(f"Prediction saved to path /content/drive/MyDrive/Experiments/plot_data/SSN/output_fold{fold_idx}_{dataset}_{model}.npz")
