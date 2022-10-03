@@ -37,9 +37,8 @@ elif dataset == "ISRC":
 
 y_true = np.array(output["y_true"][idx_paz])
 y_pred = np.array(output["y_pred"][idx_paz])
-hypno_true = output["hypno_true"][idx_paz]
-hypno_pred = output["hypno_pred"][idx_paz]
-
+hypno_true = np.asarray(output["hypno_true"][idx_paz])
+hypno_pred = np.asarray(output["hypno_pred"][idx_paz])
 
 
 print(f"Architecture: {arch} {model}")
