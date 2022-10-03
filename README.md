@@ -1,5 +1,7 @@
 # Multi-Scored Sleep Databases: How to Exploit the Multiple-Labels in Automated Sleep Scoring
 
+MANCA LINK AL PAPER 
+MANCA LINK AI DATASET COMPLETI
 This repository provides the code and a Google Colab Notebook to test some of the architectures presented in the paper "Multi-Scored Sleep Databases: How to Exploit the Multiple-Labels in Automated Sleep Scoring".
  As an example, some subjects from 3 datasets are available: DODO, DODH and ISRC. Those considered most representative and with a fair % of examples for each class (W, N1, N2, N3, REM) were selected.
 
