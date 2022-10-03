@@ -179,6 +179,7 @@ print("\nOverall Performance Tables: \n")
 print(tabulate([[dataset, f"SSN {model}", Acc, MF1, WF1, K, F1_w, F1_n1, F1_n2, F1_n3, F1_r]], headers=['Dataset','Model','Accuracy %', 'MF1 %', 'WF1 %','Cohen-k %', 'W %', 'N1 %', 'N2 %','N3 %','REM %'], tablefmt="pretty"))
 print(tabulate([[dataset, f"SSN {model}", ece_, acc_, conf, acs]], headers=['Dataset','Model','ECE', 'Accuracy', 'Confidence','ACS'],tablefmt="pretty"))
 
+# Saving Prediction
 save_dict = {
   "y_true" : all_y_true,
   "y_pred":all_y_pred,
@@ -187,3 +188,4 @@ save_dict = {
 }
 
 np.savez(f"/content/drive/MyDrive/Experiments/plot_data/SSN/output_fold{fold_idx}_{dataset}_{model}.npz", **save_dict)
+print("Prediction saved to path /content/drive/MyDrive/Experiments/plot_data/SSN/output_fold{fold_idx}_{dataset}_{model}.npz")
