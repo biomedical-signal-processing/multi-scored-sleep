@@ -25,7 +25,7 @@ The first step is to run the fisrt code block:
 
 ```ruby
 # Clone git and install python libraries needed
-!git clone !git clone https://github.com/Davide-Pedroncelli/Notebook_for_SLEEP
+!git clone https://github.com/Davide-Pedroncelli/Notebook_for_SLEEP
 !pip install torchcontrib
 ```
 Then, you can choose between 3 code blocks:
