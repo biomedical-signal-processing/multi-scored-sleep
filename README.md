@@ -2,14 +2,14 @@
 
 In this repository we provide an easy-to-use Google Colab Notebook to evaluate DeepSleepNet-Lite 
 [[Fiorillo et al.]](https://ieeexplore.ieee.org/abstract/document/9570807) and 
-SimpleSleepNet [[Guillot et al.]](https://ieeexplore.ieee.org/abstract/document/9146268) architectures
-as described in [[arXiv-preprint]](https://arxiv.org/abs/2207.01910). We evaluate the pre-trained models on three 
+SimpleSleepNet [[Guillot et al.]](https://ieeexplore.ieee.org/abstract/document/9146268) architectures,
+as described in our [[arXiv-preprint]](https://arxiv.org/abs/2207.01910). We evaluate the pre-trained models on three 
 open access datasets [DOD-H](), [DOD-O](), [IS-RC](). Specifically, for each dataset, we upload one of the _k-fold_
 pre-trained model. 
 
-Fiorillo L, Pedroncelli D, Favaro P, Faraci FD. Multi-Scored Sleep Databases: How to Exploit the Multiple-Labels 
+[[arXiv-preprint]](https://arxiv.org/abs/2207.01910) Fiorillo L, Pedroncelli D, Favaro P, Faraci FD. Multi-Scored Sleep Databases: How to Exploit the Multiple-Labels 
 in Automated Sleep Scoring. arXiv preprint arXiv:2207.01910. 2022 Jul 5. 
-[[arXiv-preprint]](https://arxiv.org/abs/2207.01910)
+
 
 
 Developed by:
