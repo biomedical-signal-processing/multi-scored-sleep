@@ -1,9 +1,6 @@
 # Multi-Scored Sleep Databases: How to Exploit the Multiple-Labels in Automated Sleep Scoring
 
-MANCA LINK AL PAPER 
-MANCA LINK AI DATASET COMPLETI
-
-In this repository you find a Google Colab Notebook to evaluate DeepSleepNet-Lite 
+In this repository we provide an easy-to-use Google Colab Notebook to evaluate DeepSleepNet-Lite 
 [[Fiorillo et al.]](https://ieeexplore.ieee.org/abstract/document/9570807) and 
 SimpleSleepNet [[Guillot et al.]](https://ieeexplore.ieee.org/abstract/document/9146268) architectures
 as described in [[arXiv-preprint]](https://arxiv.org/abs/2207.01910). We evaluate the pre-trained models on three 
