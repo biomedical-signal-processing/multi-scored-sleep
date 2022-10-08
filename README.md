@@ -54,7 +54,7 @@ You can specify two parameteres, as to execute the code on different dataset and
 2) Pre-trained Model: "LSSC", "LSU", "base"
 
 ```ruby
-3) !python /content/multi-scored-sleep/Plot_Subj.py "SSN" "ISRC" "LSU" "0"
+3) !python /content/multi-scored-sleep/plots/plot_subj.py "DSNL" "ISRC" "LSSC" "0"
 ```
 This code block generates the hypnogram and the hypnodensity-graph for a specific test-subject:
 1) Figure_Hypnogram.png
