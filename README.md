@@ -40,11 +40,11 @@ The first step is to run the first code cell/block:
 Then, you can run three code cells/blocks:
 
 ```ruby
-1) !python /content/multi-scored-sleep/DSNL/predict.py "DODH" "LSU"
+1) !python /content/multi-scored-sleep/SSN/predict.py "DODO" "LSSC"
 ```
 
 ```ruby
-2) !python /content/multi-scored-sleep/SSN/predict.py "DODH" "LSSC"
+2) !python /content/multi-scored-sleep/SSN/predict.py "DODO" "LSSC"
 ```
 
 
@@ -54,7 +54,7 @@ You can specify two parameteres, as to execute the code on different dataset and
 2) Pre-trained Model: "LSSC", "LSU", "base"
 
 ```ruby
-3) !python /content/multi-scored-sleep/plots/plot_subj.py "DSNL" "ISRC" "LSSC" "0"
+3) !python /content/multi-scored-sleep/plots/plot_subj.py "DSNL" "DODO" "LSSC" "1"
 ```
 This code block generates the hypnogram and the hypnodensity-graph for a specific test-subject:
 1) Figure_Hypnogram.png
