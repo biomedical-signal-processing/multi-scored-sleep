@@ -13,7 +13,7 @@ in Automated Sleep Scoring. arXiv preprint arXiv:2207.01910. 2022 Jul 5.
 
 
 Developed by:
-Davide Pedroncelli, Lugi Fiorillo
+Pedroncelli Davide, Fiorillo Luigi
 
 # Requirements
 To run our code, you need:
