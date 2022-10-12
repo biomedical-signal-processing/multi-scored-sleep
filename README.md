@@ -30,6 +30,8 @@ To run our code, you need:
 
 Now you are ready to go and to use our Notebook! 
 
+(_**note**_ To speed up the execution of the code, a connection to a GPU runtime is recommended)
+
 The first step is to run the first code cell/block:
 
 ```ruby
@@ -69,5 +71,3 @@ You can specify four parameteres:
 
 (_**note**_ Each time you execute the plot_subj.py script, the .png figures previously generated 
 will be automatically overwritten)
-
-(_**note**_ To speed up the execution of the code, a connection to a GPU runtime is recommended)
