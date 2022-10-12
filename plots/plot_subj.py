@@ -53,6 +53,32 @@ print(f"% examples: {w}, {n1}, {n2}, {n3}, {rem}")
 print(f"Architecture: {arch} {model}")
 print(f"Dataset: {dataset}, Subject: {allfiles[idx_paz][:-5]}")
 
+# Change class-order
+# Rem 4 -> 3
+# N3 3 -> 2
+# N2 2 -> 1
+# N1 1 -> 0
+# W 0 -> 4
+for i in range(len(y_true)):
+  if y_true[i] == 0:
+    y_true[i] = 4
+  elif y_true[i] == 1:
+    y_true[i] = 0
+  elif y_true[i] == 2:
+    y_true[i] = 1
+  elif y_true[i] == 3:
+    y_true[i] = 2
+  elif y_true[i] == 4:
+    y_true[i] = 3
+
+# rem in red
+y_rem = []
+for i in y_true:
+  if i == 3:
+    y_rem.append(i)
+  else:
+    y_rem.append(np.nan)
+
 # Plot Hypnogram True
 fig, axes = plt.subplots(2, 1, dpi=300)
 fig.set_size_inches(30, 12)
@@ -60,21 +86,60 @@ plt.subplot(2, 1, 1)
 plt.title(f"Hypnogram - Ground Truth, Architecture: {arch} {model}, Dataset: {dataset}, Subject: {allfiles[idx_paz][:-5]}", fontsize = 20)
 x = list(range(0, len(y_true)))
 plt.plot(x, y_true,  color="black")
+plt.plot(x, y_rem,  color="darkred", linewidth=4, marker="s", markersize=4)
 plt.xlabel("Time [min]",fontsize=15)
 plt.ylabel("Sleep Stages",fontsize=15)
 plt.xticks([0,200,400,600,800,1000,1200,1400],[0,100,200,300,400,500,600,700],fontsize=15)
-plt.yticks([0,1,2,3,4],["W","N1","N2","N3","R"],fontsize=15)
+plt.yticks([0,1,2,3,4],["N1","N2","N3","R", "W"],fontsize=15)
 plt.xlim([0,len(y_true)])
+my_colors = ['k', 'k', 'k', "darkred", 'k']
+for ticklabel, tickcolor in zip(plt.gca().get_yticklabels(), my_colors):
+    if tickcolor == "darkred":
+      ticklabel.set_weight("bold")
+    ticklabel.set_color(tickcolor)
+
+# Change class-order
+# Rem 4 -> 3
+# N3 3 -> 2
+# N2 2 -> 1
+# N1 1 -> 0
+# W 0 -> 4
+for i in range(len(y_pred)):
+  if y_pred[i] == 0:
+    y_pred[i] = 4
+  elif y_pred[i] == 1:
+    y_pred[i] = 0
+  elif y_pred[i] == 2:
+    y_pred[i] = 1
+  elif y_pred[i] == 3:
+    y_pred[i] = 2
+  elif y_pred[i] == 4:
+    y_pred[i] = 3
+
+# rem in red
+y_rem = []
+for i in y_pred:
+  if i == 3:
+    y_rem.append(i)
+  else:
+    y_rem.append(np.nan)
 
 # Plot Hypnogram Pred
 plt.subplot(2, 1, 2)
 plt.title(f"Hypnogram - Predicted, Architecture: {arch} {model}, Dataset: {dataset}, Subject: {allfiles[idx_paz][:-5]}, Accuracy = {acc}%", fontsize = 20)
 plt.plot(x, y_pred,  color="black")
+plt.plot(x, y_rem,  color="darkred", linewidth=4, marker="s", markersize=4)
 plt.xlabel("Time [min]",fontsize=15)
 plt.ylabel("Sleep Stages",fontsize=15)
 plt.xticks([0,200,400,600,800,1000,1200,1400],[0,100,200,300,400,500,600,700],fontsize=15)
-plt.yticks([0,1,2,3,4],["W","N1","N2","N3","R"],fontsize=15)
+plt.yticks([0,1,2,3,4],["N1","N2","N3","R", "W"],fontsize=15)
 plt.xlim([0,len(y_true)])
+my_colors = ['k', 'k', 'k', "darkred", 'k']
+for ticklabel, tickcolor in zip(plt.gca().get_yticklabels(), my_colors):
+    if tickcolor == "darkred":
+      ticklabel.set_weight("bold")
+    ticklabel.set_color(tickcolor)
+
 # set the spacing between subplots
 plt.subplots_adjust(hspace=0.3)
 
@@ -87,15 +152,16 @@ print("Figure_Hypnogram.png saved to the path /content/Figure_Hypnogram.png")
 fig, axes = plt.subplots(2, 1, dpi=300)
 fig.set_size_inches(30, 12)
 D = {
-    "W": hypno_pred[:,0],
     "N1":hypno_pred[:,1],
     "N2":hypno_pred[:,2],
     "N3":hypno_pred[:,3],
-    "REM":hypno_pred[:,4]
+    "REM":hypno_pred[:,4],
+    "W": hypno_pred[:,0]
 }
 
 df = pd.DataFrame(D)
-color = ["aliceblue","lightsteelblue","cornflowerblue","royalblue","tab:red"]
+#color = ["oldlace","cornflowerblue","royalblue","darkred","lightsteelblue"] alternative to henance N1
+color = ["steelblue","cornflowerblue","royalblue","darkred","lightsteelblue"]
 df.plot(kind="bar", stacked=True, width=1, color=color, rot=0,ax=axes[1], title=f"Hypnodensity Graph - Predicted, Architecture: {arch} {model}, Dataset: {dataset}, Subject: {allfiles[idx_paz][:-5]}, Accuracy = {acc}%, ACS = {acs_}", fontsize = 20)
 plt.sca(axes[1])
 axes[1].title.set_size(20)
@@ -112,15 +178,16 @@ plt.ylabel("Probability",fontsize=15)
 
 # Plot Hypnodensity True
 D = {
-    "W": hypno_true[:,0],
     "N1":hypno_true[:,1],
     "N2":hypno_true[:,2],
     "N3":hypno_true[:,3],
-    "REM":hypno_true[:,4]
+    "REM":hypno_true[:,4],
+    "W": hypno_true[:,0]
 }
 
 df = pd.DataFrame(D)
-color = ["aliceblue","lightsteelblue","cornflowerblue","royalblue","tab:red"]
+#color = ["oldlace","cornflowerblue","royalblue","darkred","lightsteelblue"] alternative to henance N1
+color = ["steelblue","cornflowerblue","royalblue","darkred","lightsteelblue"]
 df.plot(kind="bar", stacked=True, width=1, color=color, rot=0,ax=axes[0],legend=None, title=f"Hypnodensity Graph - Ground Truth, Architecture: {arch} {model}, Dataset: {dataset}, Subject: {allfiles[idx_paz][:-5]}", fontsize = 20)
 plt.sca(axes[0])
 axes[0].title.set_size(20)
