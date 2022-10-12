@@ -28,9 +28,9 @@ To run our code, you need:
 (_**note**_ do not modify the content of the downloaded data, any change could affect the correct execution of the notebook)
 3) __Open our Google Colab Notebook__ https://colab.research.google.com/drive/1cFwdgoUImooxIBFrZz-_SqkQWCQMD85g?usp=sharing
 
-Now you are ready to go and to use our Notebook! 
-
 (_**note**_ To speed up the execution of the code, a connection to a GPU runtime is recommended)
+
+Now you are ready to go and to use our Notebook! 
 
 The first step is to run the first code cell/block:
 
