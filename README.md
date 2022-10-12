@@ -69,3 +69,5 @@ You can specify four parameteres:
 
 (_**note**_ Each time you execute the plot_subj.py script, the .png figures previously generated 
 will be automatically overwritten)
+
+(_**note**_ To speed up the execution of the code, a connection to a GPU runtime is recommended)
