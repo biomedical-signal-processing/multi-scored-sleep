@@ -37,9 +37,6 @@ The first step is to run the follownig code cells/blocks:
 # Clone git and install python libraries needed
 !git clone https://github.com/bio-signal-processing/multi-scored-sleep
 !pip install torchcontrib
-```
-
-```ruby
 # Mount Drive
 from google.colab import drive
 drive.mount('/content/drive')
