@@ -34,8 +34,8 @@ Now you are ready to go and to use our Notebook!
 The first step is to run the code cell/block:
 
 ```ruby
-# Clone git and install python libraries needed
-!git clone https://github.com/bio-signal-processing/multi-scored-sleep
+# Clone git, install libraries
+!git clone https://github.com/biomedical-signal-processing/multi-scored-sleep
 !pip install torchcontrib
 
 # Mount Drive
