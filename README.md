@@ -42,7 +42,7 @@ The first step is to run the code cell/block:
 from google.colab import drive
 drive.mount('/content/drive')
 ```
-Mounting drive is required to access previously uploaded data.
+Mounting your Drive is required to access previously uploaded data.
 
 Then, you can run three code cells/blocks:
 
