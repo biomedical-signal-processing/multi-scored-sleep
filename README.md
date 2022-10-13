@@ -31,7 +31,7 @@ To run our code, you need:
 
 Now you are ready to go and to use our Notebook! 
 
-The first step is to run the follownig code cell/block:
+The first step is to run the code cell/block:
 
 ```ruby
 # Clone git and install python libraries needed
