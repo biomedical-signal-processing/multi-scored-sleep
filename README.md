@@ -17,9 +17,9 @@ Pedroncelli Davide, Fiorillo Luigi
 
 # Requirements
 To run our code, you need:
-1) Google Account https://www.google.com/account
-2) Google Drive https://www.google.com/drive
-3) Google Colab https://colab.research.google.com
+1) [Google Account](https://www.google.com/account)
+2) [Google Drive] (https://www.google.com/drive)
+3) [Google Colab] (https://colab.research.google.com)
 
 ## Usage
 
