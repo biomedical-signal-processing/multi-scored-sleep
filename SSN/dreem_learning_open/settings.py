@@ -2,7 +2,7 @@ import os
 
 VERSION = "1_00"
 # Suggested directory where H5 and memmaps will be stored
-BASE_DIRECTORY = "/content/drive/MyDrive/Experiment _Paper/SSN/data/"
+BASE_DIRECTORY = "/content/drive/"
 BASE_DIRECTORY_H5 = BASE_DIRECTORY + "h5/"
 BASE_DIRECTORY_MEMMAP = BASE_DIRECTORY + "memmap/"
 EXPERIMENTS_DIRECTORY = BASE_DIRECTORY + 'experiments/'
