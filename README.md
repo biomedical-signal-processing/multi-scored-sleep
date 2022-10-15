@@ -23,7 +23,7 @@ To run our code, you need:
 
 ## Usage
 
-1) __Download data required__ https://drive.google.com/drive/folders/1d6CXWl39ydGqiXc10cc8cZsFH51YJlZ-?usp=sharing
+1) __Download data required__ https://www.googleapis.com/drive/v3/files/1iSTsJ3BFXDPA6EJXfGoDS9rdhx7Y65Ns?alt=media&key=AIzaSyCqFyfTOhzv5UofENeRHrt7QMGITabRAjA
 2) __Unzip the file and upload it to your Gogle Drive__ <br />
 (_**note**_ do not modify the content of the downloaded data, any change could affect the correct execution of the notebook)
 3) __Open our Google Colab Notebook__ https://colab.research.google.com/drive/1cFwdgoUImooxIBFrZz-_SqkQWCQMD85g?usp=sharing             
