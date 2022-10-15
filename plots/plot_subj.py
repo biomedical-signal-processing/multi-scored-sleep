@@ -3,7 +3,7 @@ from operator import sub
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
 import inspect
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))) 
 from metrics.ece_acs import *
@@ -35,8 +35,8 @@ hypno_true = np.asarray(output["hypno_true"][idx_paz])
 hypno_pred = np.asarray(output["hypno_pred"][idx_paz])
 
 # Computing accuracy
-acc = np.round(accuracy_score(y_true, y_pred)*100,1)
-print(f"Accurcay : {acc}")
+wf1 = np.round(f1_score(y_true, y_pred, average="weighted")*100,1)
+print(f"Weighted-F1 : {wf1}")
 # Computing ACS
 acs_ = np.round(compute_acs(hypno_true,hypno_pred),3)
 print(f"ACS : {acs_}")
@@ -126,7 +126,7 @@ for i in y_pred:
 
 # Plot Hypnogram Pred
 plt.subplot(2, 1, 2)
-plt.title(f"Hypnogram - Predicted, Architecture: {arch} {model}, Dataset: {dataset}, Subject: {allfiles[idx_paz][:-5]}, Accuracy = {acc}%", fontsize = 20)
+plt.title(f"Hypnogram - Predicted, Architecture: {arch} {model}, Dataset: {dataset}, Subject: {allfiles[idx_paz][:-5]}, Weighted-F1 = {wf1}%", fontsize = 20)
 plt.plot(x, y_pred,  color="black")
 plt.plot(x, y_rem,  color="darkred", linewidth=4, marker="s", markersize=4)
 plt.xlabel("Time [min]",fontsize=15)
@@ -162,7 +162,7 @@ D = {
 df = pd.DataFrame(D)
 #color = ["oldlace","cornflowerblue","royalblue","darkred","lightsteelblue"] alternative to henance N1
 color = ["steelblue","cornflowerblue","royalblue","darkred","lightsteelblue"]
-df.plot(kind="bar", stacked=True, width=1, color=color, rot=0,ax=axes[1], title=f"Hypnodensity Graph - Predicted, Architecture: {arch} {model}, Dataset: {dataset}, Subject: {allfiles[idx_paz][:-5]}, Accuracy = {acc}%, ACS = {acs_}", fontsize = 20)
+df.plot(kind="bar", stacked=True, width=1, color=color, rot=0,ax=axes[1], title=f"Hypnodensity Graph - Predicted, Architecture: {arch} {model}, Dataset: {dataset}, Subject: {allfiles[idx_paz][:-5]}, Weighted-F1 = {wf1}%, ACS = {acs_}", fontsize = 20)
 plt.sca(axes[1])
 axes[1].title.set_size(20)
 # Legend
@@ -203,4 +203,3 @@ plt.subplots_adjust(hspace=0.4)
 # Saving Hypnodensity Figure
 plt.savefig(f'/content/Figure_Hypnodensity.png',dpi=300)
 print("Figure_Hypnodensity.png saved to the path /content/Figure_Hypnodensity.png")
-
