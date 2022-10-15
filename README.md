@@ -23,10 +23,10 @@ To run our code, you need:
 
 ## Usage
 
-1) __Download data required ([here])__ https://www.googleapis.com/drive/v3/files/1iSTsJ3BFXDPA6EJXfGoDS9rdhx7Y65Ns?alt=media&key=AIzaSyCqFyfTOhzv5UofENeRHrt7QMGITabRAjA
+1) __Download data required ([[here]](https://www.googleapis.com/drive/v3/files/1iSTsJ3BFXDPA6EJXfGoDS9rdhx7Y65Ns?alt=media&key=AIzaSyCqFyfTOhzv5UofENeRHrt7QMGITabRAjA))__ 
 2) __Unzip the file and upload it to your Gogle Drive__ <br />
 (_**note**_ do not modify the content of the downloaded data, any change could affect the correct execution of the notebook)
-3) __Open our Google Colab Notebook ([here])__ https://colab.research.google.com/drive/1cFwdgoUImooxIBFrZz-_SqkQWCQMD85g?usp=sharing             
+3) __Open our Google Colab Notebook ([[here]](https://colab.research.google.com/drive/1cFwdgoUImooxIBFrZz-_SqkQWCQMD85g?usp=sharing))__            
 (_**note**_ To speed up the execution, a connection to a GPU runtime is recommended)
 
 Now you are ready to go and to use our Notebook! 
